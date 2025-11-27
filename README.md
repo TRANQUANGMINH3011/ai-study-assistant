@@ -386,8 +386,11 @@ MIT License - Tự do sử dụng và chỉnh sửa.
 
 ## 👨‍💻 Tác giả
 
-**TRAN QUANG MINH** - B23DCCC087
-- GitHub: [@TRANQUANGMINH3011](https://github.com/TRANQUANGMINH3011)
+**TRAN QUANG MINH** - B23DCCC112
+**TA TIEN LOC** - B23DCCC100
+**NGUYEN MINH HIEU** - B23DCCC066
+**PHAM MINH HIEN** - B23DCCC059
+**LE HOANG HAI** - B23DCCC058
 
 ---
 
