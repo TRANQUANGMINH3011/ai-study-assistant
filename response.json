@@ -1,0 +1,1 @@
+{"errorMessage": "Syntax error in module 'handler': unexpected indent (handler.py, line 1006)", "errorType": "Runtime.UserCodeSyntaxError", "requestId": "", "stackTrace": ["  File \"/var/task/handler.py\" Line 1006\n                \"body\": json.dumps({\n"]}

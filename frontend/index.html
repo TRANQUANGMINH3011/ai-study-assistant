@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+           NEO-BRUTALISM DESIGN SYSTEM
+           ======================================== */
+        
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --yellow: #FFE600;
+            --pink: #FF6B9D;
+            --blue: #00D4FF;
+            --green: #7CFF6B;
+            --purple: #B794F6;
+            --orange: #FF9F43;
+            --red: #FF6B6B;
+            --cream: #FFF8E7;
+            
+            --shadow: 4px 4px 0px var(--black);
+            --shadow-lg: 8px 8px 0px var(--black);
+            --border: 3px solid var(--black);
+            --border-thick: 5px solid var(--black);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--cream);
+            background-image: 
+                radial-gradient(circle, #ddd 1px, transparent 1px);
+            background-size: 24px 24px;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* ========================================
+           HEADER
+           ======================================== */
+        .header {
+            background: var(--yellow);
+            border: var(--border-thick);
+            box-shadow: var(--shadow-lg);
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-box {
+            background: var(--black);
+            color: var(--yellow);
+            padding: 5px 12px;
+            transform: rotate(-2deg);
+        }
+
+        .header-badge {
+            background: var(--pink);
+            border: var(--border);
+            padding: 8px 16px;
+            font-weight: 700;
+            font-size: 14px;
+            transform: rotate(2deg);
+        }
+
+        /* ========================================
+           NAVIGATION TABS
+           ======================================== */
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: var(--white);
+            border: var(--border);
+            border-right: none;
+            padding: 18px 28px;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.1s;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .tab:last-child {
+            border-right: var(--border);
+        }
+
+        .tab:hover {
+            background: var(--purple);
+            transform: translateY(-3px);
+        }
+
+        .tab.active {
+            background: var(--blue);
+            box-shadow: var(--shadow);
+            transform: translate(-3px, -3px);
+            z-index: 10;
+            position: relative;
+        }
+
+        /* ========================================
+           MAIN GRID
+           ======================================== */
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* ========================================
+           CARDS
+           ======================================== */
+        .card {
+            background: var(--white);
+            border: var(--border-thick);
+            box-shadow: var(--shadow-lg);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: var(--black);
+            color: var(--white);
+            padding: 18px 25px;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-family: 'Space Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-header.pink { background: var(--pink); color: var(--black); }
+        .card-header.blue { background: var(--blue); color: var(--black); }
+        .card-header.green { background: var(--green); color: var(--black); }
+        .card-header.yellow { background: var(--yellow); color: var(--black); }
+        .card-header.purple { background: var(--purple); color: var(--black); }
+        .card-header.orange { background: var(--orange); color: var(--black); }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        /* ========================================
+           BUTTONS
+           ======================================== */
+        .btn {
+            background: var(--yellow);
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 14px 28px;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 7px 7px 0px var(--black);
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px var(--black);
+        }
+
+        .btn-pink { background: var(--pink); }
+        .btn-blue { background: var(--blue); }
+        .btn-green { background: var(--green); }
+        .btn-purple { background: var(--purple); }
+        .btn-orange { background: var(--orange); }
+        .btn-black { background: var(--black); color: var(--white); }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: var(--shadow) !important;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* ========================================
+           INPUTS
+           ======================================== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin-bottom: 10px;
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 14px 18px;
+            border: var(--border);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 15px;
+            background: var(--white);
+            transition: all 0.1s;
+        }
+
+        textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            box-shadow: var(--shadow);
+            transform: translate(-2px, -2px);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 45px;
+        }
+
+        /* ========================================
+           FILE UPLOAD
+           ======================================== */
+        .file-upload {
+            border: 5px dashed var(--black);
+            padding: 50px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0,0,0,0.02) 10px,
+                rgba(0,0,0,0.02) 20px
+            );
+        }
+
+        .file-upload:hover {
+            background: var(--yellow);
+            border-style: solid;
+        }
+
+        .file-upload-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-text {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .file-upload-hint {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        /* ========================================
+           OUTPUT BOX
+           ======================================== */
+        .output {
+            background: var(--cream);
+            border: var(--border);
+            padding: 20px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .output:empty::before {
+            content: "✨ Kết quả sẽ hiển thị ở đây...";
+            color: #999;
+            font-style: italic;
+        }
+
+        /* ========================================
+           FLASHCARD
+           ======================================== */
+        .flashcard-container {
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            background: var(--white);
+            border: var(--border-thick);
+            box-shadow: var(--shadow-lg);
+            padding: 40px 30px;
+            text-align: center;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .flashcard:hover {
+            transform: rotate(-1deg) scale(1.02);
+        }
+
+        .flashcard.flipped {
+            background: var(--green);
+        }
+
+        .flashcard-badge {
+            position: absolute;
+            top: -15px;
+            left: 25px;
+            background: var(--pink);
+            border: var(--border);
+            padding: 6px 18px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .flashcard.flipped .flashcard-badge {
+            background: var(--blue);
+        }
+
+        .flashcard-content {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .flashcard-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .flashcard-counter {
+            background: var(--black);
+            color: var(--white);
+            padding: 12px 20px;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* ========================================
+           QUIZ
+           ======================================== */
+        .quiz-question {
+            background: var(--purple);
+            border: var(--border-thick);
+            padding: 20px 25px;
+            margin-bottom: 20px;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .quiz-question-number {
+            background: var(--black);
+            color: var(--white);
+            padding: 4px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-right: 12px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            background: var(--white);
+            border: var(--border);
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quiz-option:hover {
+            background: var(--yellow);
+            transform: translateX(8px);
+        }
+
+        .quiz-option.selected {
+            background: var(--blue);
+            box-shadow: var(--shadow);
+            transform: translateX(5px);
+        }
+
+        .quiz-option.correct {
+            background: var(--green) !important;
+        }
+
+        .quiz-option.wrong {
+            background: var(--red) !important;
+        }
+
+        .quiz-option-letter {
+            background: var(--black);
+            color: var(--white);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-family: 'Space Mono', monospace;
+            flex-shrink: 0;
+        }
+
+        .quiz-result {
+            background: var(--green);
+            border: var(--border-thick);
+            padding: 30px;
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .quiz-score {
+            font-size: 48px;
+            font-weight: 900;
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* ========================================
+           CHAT
+           ======================================== */
+        .chat-messages {
+            background: var(--cream);
+            border: var(--border);
+            padding: 20px;
+            min-height: 350px;
+            max-height: 450px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .chat-message {
+            margin-bottom: 18px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .chat-avatar {
+            width: 45px;
+            height: 45px;
+            border: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .chat-message.user .chat-avatar {
+            background: var(--blue);
+        }
+
+        .chat-message.bot .chat-avatar {
+            background: var(--pink);
+        }
+
+        .chat-bubble {
+            background: var(--white);
+            border: var(--border);
+            padding: 14px 18px;
+            max-width: 75%;
+            box-shadow: 3px 3px 0px var(--black);
+            line-height: 1.6;
+        }
+
+        .chat-message.user .chat-bubble {
+            background: var(--blue);
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input-row input {
+            flex: 1;
+        }
+
+        /* ========================================
+           DOCUMENT LIST
+           ======================================== */
+        .doc-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .doc-item {
+            background: var(--white);
+            border: var(--border);
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.1s;
+        }
+
+        .doc-item:hover {
+            background: var(--yellow);
+            transform: translateX(8px);
+        }
+
+        .doc-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .doc-icon {
+            font-size: 28px;
+        }
+
+        .doc-name {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .doc-date {
+            font-size: 12px;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .doc-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .doc-actions .btn {
+            padding: 10px 14px;
+            font-size: 16px;
+        }
+
+        /* ========================================
+           STATS BAR
+           ======================================== */
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: var(--white);
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .stat-icon {
+            font-size: 32px;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 900;
+            font-family: 'Space Mono', monospace;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #666;
+        }
+
+        .stat-box.yellow { border-left: 8px solid var(--yellow); }
+        .stat-box.pink { border-left: 8px solid var(--pink); }
+        .stat-box.blue { border-left: 8px solid var(--blue); }
+        .stat-box.green { border-left: 8px solid var(--green); }
+
+        /* ========================================
+           LOADING SPINNER
+           ======================================== */
+        .spinner {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border: 4px solid var(--black);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========================================
+           TOAST
+           ======================================== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--black);
+            color: var(--white);
+            border: var(--border);
+            padding: 18px 28px;
+            font-weight: 700;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(120px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 9999;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { background: var(--green); color: var(--black); }
+        .toast.error { background: var(--red); color: var(--black); }
+
+        /* ========================================
+           SECTIONS
+           ======================================== */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* ========================================
+           DIVIDER
+           ======================================== */
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            font-weight: 700;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "—————";
+            margin: 0 15px;
+        }
+
+        /* ========================================
+           EMPTY STATE
+           ======================================== */
+        .empty-state {
+            text-align: center;
+            padding: 50px 30px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo">
+            <span class="logo-box">AI</span>
+            Study Assistant
+        </div>
+        <div class="header-badge">
+            ⚡ Powered by Gemini
+        </div>
+    </header>
+
+    <!-- STATS BAR -->
+    <div class="stats-bar">
+        <div class="stat-box yellow">
+            <div class="stat-icon">📚</div>
+            <div>
+                <div class="stat-number" id="stat-docs">0</div>
+                <div class="stat-label">Tài liệu</div>
+            </div>
+        </div>
+        <div class="stat-box pink">
+            <div class="stat-icon">🎴</div>
+            <div>
+                <div class="stat-number" id="stat-flashcards">0</div>
+                <div class="stat-label">Flashcards</div>
+            </div>
+        </div>
+        <div class="stat-box blue">
+            <div class="stat-icon">❓</div>
+            <div>
+                <div class="stat-number" id="stat-quizzes">0</div>
+                <div class="stat-label">Câu Quiz</div>
+            </div>
+        </div>
+        <div class="stat-box green">
+            <div class="stat-icon">💬</div>
+            <div>
+                <div class="stat-number" id="stat-chats">0</div>
+                <div class="stat-label">Tin nhắn</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <nav class="tabs">
+        <div class="tab active" data-tab="upload">📤 Upload</div>
+        <div class="tab" data-tab="documents">📚 Tài liệu</div>
+        <div class="tab" data-tab="flashcards">🎴 Flashcards</div>
+        <div class="tab" data-tab="quiz">❓ Quiz</div>
+        <div class="tab" data-tab="chat">💬 Chat</div>
+        <div class="tab" data-tab="explain">🧒 ELI5</div>
+    </nav>
+
+    <!-- ==================== UPLOAD SECTION ==================== -->
+    <section class="section active" id="section-upload">
+        <div class="container">
+            <div class="card">
+                <div class="card-header yellow">📤 Upload Tài Liệu</div>
+                <div class="card-body">
+                    <div class="file-upload" id="dropZone">
+                        <div class="file-upload-icon">📄</div>
+                        <div class="file-upload-text">Kéo thả file hoặc click để chọn</div>
+                        <div class="file-upload-hint">Hỗ trợ: PDF, TXT, DOCX (tối đa 10MB)</div>
+                        <input type="file" id="fileInput" accept=".pdf,.txt,.docx">
+                    </div>
+
+                    <div class="divider">HOẶC</div>
+
+                    <div class="form-group">
+                        <label>📝 Nhập nội dung trực tiếp</label>
+                        <textarea id="directContent" placeholder="Paste nội dung tài liệu học tập vào đây..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📌 Tên tài liệu</label>
+                        <input type="text" id="docName" placeholder="Ví dụ: Bài giảng Machine Learning Chương 1">
+                    </div>
+
+                    <button class="btn btn-black btn-block" onclick="uploadDocument()">
+                        🚀 UPLOAD TÀI LIỆU
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header pink">📋 Hướng Dẫn Sử Dụng</div>
+                <div class="card-body">
+                    <div style="line-height: 2.2; font-size: 15px;">
+                        <p><strong>① Upload:</strong> Tải lên PDF/TXT hoặc paste nội dung</p>
+                        <p><strong>② Chọn tài liệu:</strong> Từ tab "Tài liệu"</p>
+                        <p><strong>③ Học tập với AI:</strong></p>
+                        <ul style="margin-left: 25px; margin-top: 5px;">
+                            <li>🎴 <strong>Flashcards</strong> - Ôn tập với thẻ ghi nhớ</li>
+                            <li>❓ <strong>Quiz</strong> - Kiểm tra kiến thức</li>
+                            <li>💬 <strong>Chat</strong> - Hỏi đáp với AI</li>
+                            <li>📝 <strong>Tóm tắt</strong> - Rút gọn nội dung</li>
+                            <li>🧒 <strong>ELI5</strong> - Giải thích đơn giản</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-top: 25px; padding: 18px; background: var(--green); border: var(--border);">
+                        <strong>💡 Mẹo hay:</strong> Nội dung càng chi tiết, AI tạo flashcards và quiz càng chất lượng!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== DOCUMENTS SECTION ==================== -->
+    <section class="section" id="section-documents">
+        <div class="container">
+            <div class="card full-width">
+                <div class="card-header blue">📚 Danh Sách Tài Liệu</div>
+                <div class="card-body">
+                    <div class="doc-list" id="docList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <div class="empty-state-text">Đang tải danh sách...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FLASHCARDS SECTION ==================== -->
+    <section class="section" id="section-flashcards">
+        <div class="container">
+            <div class="card">
+                <div class="card-header pink">🎴 Tạo Flashcards</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>📚 Chọn tài liệu</label>
+                        <select id="flashcardDocSelect">
+                            <option value="">-- Chọn tài liệu --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🔢 Số lượng flashcards</label>
+                        <input type="number" id="flashcardCount" value="5" min="1" max="20">
+                    </div>
+
+                    <button class="btn btn-pink btn-block" onclick="createFlashcards()">
+                        ✨ TẠO FLASHCARDS
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header green">📖 Ôn Tập Flashcards</div>
+                <div class="card-body">
+                    <div class="flashcard-container">
+                        <div class="flashcard" onclick="flipCard()" id="currentFlashcard">
+                            <div class="flashcard-badge" id="flashcardBadge">Câu hỏi</div>
+                            <div class="flashcard-content" id="flashcardContent">
+                                👆 Chọn tài liệu và tạo flashcards để bắt đầu ôn tập!
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flashcard-nav">
+                        <button class="btn" onclick="prevCard()">◀ Trước</button>
+                        <div class="flashcard-counter" id="cardCounter">0 / 0</div>
+                        <button class="btn" onclick="nextCard()">Sau ▶</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== QUIZ SECTION ==================== -->
+    <section class="section" id="section-quiz">
+        <div class="container">
+            <div class="card">
+                <div class="card-header purple">❓ Tạo Quiz</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>📚 Chọn tài liệu</label>
+                        <select id="quizDocSelect">
+                            <option value="">-- Chọn tài liệu --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🔢 Số câu hỏi</label>
+                        <input type="number" id="quizCount" value="5" min="1" max="20">
+                    </div>
+
+                    <div class="form-group">
+                        <label>📊 Độ khó</label>
+                        <select id="quizDifficulty">
+                            <option value="easy">🟢 Dễ</option>
+                            <option value="medium" selected>🟡 Trung bình</option>
+                            <option value="hard">🔴 Khó</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-purple btn-block" onclick="createQuiz()">
+                        🎯 TẠO QUIZ
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header orange">🏆 Làm Quiz</div>
+                <div class="card-body">
+                    <div id="quizArea">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎯</div>
+                            <div class="empty-state-text">Tạo quiz để bắt đầu làm bài!</div>
+                        </div>
+                    </div>
+                    <div id="quizResult" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== CHAT SECTION ==================== -->
+    <section class="section" id="section-chat">
+        <div class="container">
+            <div class="card full-width">
+                <div class="card-header blue">💬 Chat Với Tài Liệu</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>📚 Chọn tài liệu để hỏi đáp</label>
+                        <select id="chatDocSelect">
+                            <option value="">-- Chọn tài liệu --</option>
+                        </select>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-message bot">
+                            <div class="chat-avatar">🤖</div>
+                            <div class="chat-bubble">
+                                Xin chào! Hãy chọn tài liệu và đặt câu hỏi, tôi sẽ giúp bạn tìm hiểu nội dung! 📚
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-row">
+                        <input type="text" id="chatInput" placeholder="Nhập câu hỏi của bạn..." onkeypress="if(event.key==='Enter')sendChat()">
+                        <button class="btn btn-blue" onclick="sendChat()">📤 GỬI</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== EXPLAIN SECTION ==================== -->
+    <section class="section" id="section-explain">
+        <div class="container">
+            <div class="card">
+                <div class="card-header green">🧒 Giải Thích Đơn Giản (ELI5)</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>🔤 Khái niệm cần giải thích</label>
+                        <input type="text" id="explainConcept" placeholder="Ví dụ: Machine Learning, Blockchain, API...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>📊 Cấp độ giải thích</label>
+                        <select id="explainLevel">
+                            <option value="eli5">🧒 ELI5 - Như giải thích cho trẻ 5 tuổi</option>
+                            <option value="beginner">📗 Beginner - Người mới bắt đầu</option>
+                            <option value="intermediate">📘 Intermediate - Trung cấp</option>
+                            <option value="expert">📕 Expert - Chuyên gia</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-green btn-block" onclick="explainConcept()">
+                        💡 GIẢI THÍCH NGAY
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header yellow">📖 Kết Quả Giải Thích</div>
+                <div class="card-body">
+                    <div class="output" id="explainOutput"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        // ========================================
+        // CONFIG
+        // ========================================
+        const API_BASE = 'https://0q3mju5aqe.execute-api.ap-southeast-1.amazonaws.com/dev';
+        
+        let documents = [];
+        let currentFlashcards = [];
+        let currentFlashcardIndex = 0;
+        let isFlipped = false;
+        let currentQuiz = null;
+        let selectedAnswers = {};
+        let chatCount = 0;
+
+        // ========================================
+        // TAB NAVIGATION
+        // ========================================
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`section-${tab.dataset.tab}`).classList.add('active');
+                
+                if (tab.dataset.tab === 'documents') loadDocuments();
+            });
+        });
+
+        // ========================================
+        // TOAST
+        // ========================================
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast show ${type}`;
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        // ========================================
+        // API HELPER
+        // ========================================
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (body) options.body = JSON.stringify(body);
+            
+            const response = await fetch(`${API_BASE}${endpoint}`, options);
+            const data = await response.json();
+            
+            if (!response.ok) throw new Error(data.error || 'API Error');
+            return data;
+        }
+
+        // ========================================
+        // UPLOAD
+        // ========================================
+        async function uploadDocument() {
+            const content = document.getElementById('directContent').value;
+            const name = document.getElementById('docName').value || 'Tài liệu ' + new Date().toLocaleDateString('vi-VN');
+            
+            // Check if we have a selected file (PDF/DOCX) or plain text
+            if (selectedFile) {
+                const ext = selectedFile.name.toLowerCase().split('.').pop();
+                
+                try {
+                    showToast('📤 Đang upload tài liệu ' + ext.toUpperCase() + '...', 'info');
+                    
+                    // Read file as base64
+                    const base64 = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const base64String = reader.result.split(',')[1];
+                            resolve(base64String);
+                        };
+                        reader.onerror = reject;
+                        reader.readAsDataURL(selectedFile);
+                    });
+                    
+                    const contentTypes = {
+                        'pdf': 'application/pdf',
+                        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'doc': 'application/msword',
+                        'txt': 'text/plain'
+                    };
+                    
+                    await apiCall('/documents/upload', 'POST', {
+                        file: base64,
+                        fileName: selectedFile.name,
+                        fileType: contentTypes[ext] || 'application/octet-stream'
+                    });
+                    
+                    showToast('✅ Upload thành công!', 'success');
+                    document.getElementById('directContent').value = '';
+                    document.getElementById('docName').value = '';
+                    selectedFile = null;
+                    loadDocuments();
+                } catch (error) {
+                    showToast('❌ Lỗi: ' + error.message, 'error');
+                }
+            } else if (content && !content.startsWith('📎 File đã chọn:')) {
+                // Plain text content
+                try {
+                    showToast('📤 Đang upload tài liệu...', 'info');
+                    await apiCall('/documents/upload', 'POST', {
+                        content: content,
+                        filename: name + '.txt',
+                        contentType: 'text/plain'
+                    });
+                    
+                    showToast('✅ Upload thành công!', 'success');
+                    document.getElementById('directContent').value = '';
+                    document.getElementById('docName').value = '';
+                    loadDocuments();
+                } catch (error) {
+                    showToast('❌ Lỗi: ' + error.message, 'error');
+                }
+            } else {
+                showToast('⚠️ Vui lòng nhập nội dung hoặc chọn file!', 'error');
+            }
+        }
+
+        // ========================================
+        // LOAD DOCUMENTS
+        // ========================================
+        async function loadDocuments() {
+            try {
+                const result = await apiCall('/documents');
+                documents = result.documents || [];
+                
+                const docList = document.getElementById('docList');
+                if (documents.length === 0) {
+                    docList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <div class="empty-state-text">Chưa có tài liệu nào.<br>Hãy upload tài liệu đầu tiên!</div>
+                        </div>
+                    `;
+                } else {
+                    docList.innerHTML = documents.map(doc => `
+                        <div class="doc-item">
+                            <div class="doc-info">
+                                <div class="doc-icon">📄</div>
+                                <div>
+                                    <div class="doc-name">${doc.fileName}</div>
+                                    <div class="doc-date">📅 ${new Date(doc.createdAt).toLocaleDateString('vi-VN')}</div>
+                                </div>
+                            </div>
+                            <div class="doc-actions">
+                                <button class="btn btn-pink" onclick="selectDoc('${doc.documentId}', 'flashcards')" title="Tạo Flashcards">🎴</button>
+                                <button class="btn btn-purple" onclick="selectDoc('${doc.documentId}', 'quiz')" title="Tạo Quiz">❓</button>
+                                <button class="btn btn-blue" onclick="selectDoc('${doc.documentId}', 'chat')" title="Chat">💬</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // Update dropdowns
+                const opts = documents.map(d => `<option value="${d.documentId}">${d.fileName}</option>`).join('');
+                document.getElementById('flashcardDocSelect').innerHTML = '<option value="">-- Chọn tài liệu --</option>' + opts;
+                document.getElementById('quizDocSelect').innerHTML = '<option value="">-- Chọn tài liệu --</option>' + opts;
+                document.getElementById('chatDocSelect').innerHTML = '<option value="">-- Chọn tài liệu --</option>' + opts;
+                
+                updateStats();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function selectDoc(docId, tab) {
+            document.getElementById(`${tab === 'flashcards' ? 'flashcardDocSelect' : tab === 'quiz' ? 'quizDocSelect' : 'chatDocSelect'}`).value = docId;
+            document.querySelector(`[data-tab="${tab}"]`).click();
+        }
+
+        // ========================================
+        // FLASHCARDS
+        // ========================================
+        async function createFlashcards() {
+            const docId = document.getElementById('flashcardDocSelect').value;
+            const count = document.getElementById('flashcardCount').value;
+            
+            if (!docId) {
+                showToast('⚠️ Vui lòng chọn tài liệu!', 'error');
+                return;
+            }
+
+            try {
+                showToast('✨ Đang tạo flashcards...', 'info');
+                const result = await apiCall(`/documents/${docId}/flashcards`, 'POST', { count: parseInt(count) });
+                
+                currentFlashcards = result.flashcards || [];
+                currentFlashcardIndex = 0;
+                isFlipped = false;
+                
+                showFlashcard();
+                showToast(`✅ Đã tạo ${currentFlashcards.length} flashcards!`, 'success');
+                updateStats();
+            } catch (error) {
+                showToast('❌ Lỗi: ' + error.message, 'error');
+            }
+        }
+
+        function showFlashcard() {
+            if (currentFlashcards.length === 0) return;
+            
+            const card = currentFlashcards[currentFlashcardIndex];
+            const el = document.getElementById('currentFlashcard');
+            const content = document.getElementById('flashcardContent');
+            const badge = document.getElementById('flashcardBadge');
+            
+            if (isFlipped) {
+                content.textContent = card.answer || card.back;
+                badge.textContent = '✅ Trả lời';
+                el.classList.add('flipped');
+            } else {
+                content.textContent = card.question || card.front;
+                badge.textContent = '❓ Câu hỏi';
+                el.classList.remove('flipped');
+            }
+            
+            document.getElementById('cardCounter').textContent = `${currentFlashcardIndex + 1} / ${currentFlashcards.length}`;
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            showFlashcard();
+        }
+
+        function nextCard() {
+            if (currentFlashcardIndex < currentFlashcards.length - 1) {
+                currentFlashcardIndex++;
+                isFlipped = false;
+                showFlashcard();
+            }
+        }
+
+        function prevCard() {
+            if (currentFlashcardIndex > 0) {
+                currentFlashcardIndex--;
+                isFlipped = false;
+                showFlashcard();
+            }
+        }
+
+        // ========================================
+        // QUIZ
+        // ========================================
+        async function createQuiz() {
+            const docId = document.getElementById('quizDocSelect').value;
+            const count = document.getElementById('quizCount').value;
+            const difficulty = document.getElementById('quizDifficulty').value;
+            
+            if (!docId) {
+                showToast('⚠️ Vui lòng chọn tài liệu!', 'error');
+                return;
+            }
+
+            try {
+                showToast('🎯 Đang tạo quiz...', 'info');
+                const result = await apiCall(`/documents/${docId}/quiz`, 'POST', { 
+                    questionCount: parseInt(count),
+                    difficulty 
+                });
+                
+                currentQuiz = result.quiz || result;
+                selectedAnswers = {};
+                renderQuiz();
+                showToast('✅ Đã tạo quiz!', 'success');
+                updateStats();
+            } catch (error) {
+                showToast('❌ Lỗi: ' + error.message, 'error');
+            }
+        }
+
+        function renderQuiz() {
+            if (!currentQuiz?.questions) return;
+            
+            const area = document.getElementById('quizArea');
+            area.innerHTML = currentQuiz.questions.map((q, qi) => {
+                // Handle both array and object format for options
+                let optionsArray = [];
+                if (Array.isArray(q.options)) {
+                    optionsArray = q.options;
+                } else if (typeof q.options === 'object') {
+                    // Convert object {A: '...', B: '...', C: '...', D: '...'} to array
+                    optionsArray = ['A', 'B', 'C', 'D'].map(key => q.options[key]).filter(Boolean);
+                }
+                
+                return `
+                <div style="margin-bottom: 30px;">
+                    <div class="quiz-question">
+                        <span class="quiz-question-number">Câu ${qi + 1}</span>
+                        ${q.question}
+                    </div>
+                    <div class="quiz-options">
+                        ${optionsArray.map((opt, oi) => `
+                            <div class="quiz-option" onclick="selectAnswer(${qi}, ${oi})" id="q${qi}o${oi}">
+                                <div class="quiz-option-letter">${String.fromCharCode(65 + oi)}</div>
+                                <div>${opt}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `}).join('');
+            
+            area.innerHTML += `<button class="btn btn-orange btn-block" onclick="submitQuiz()">📝 NỘP BÀI</button>`;
+            document.getElementById('quizResult').style.display = 'none';
+        }
+
+        function selectAnswer(qi, oi) {
+            document.querySelectorAll(`[id^="q${qi}o"]`).forEach(el => el.classList.remove('selected'));
+            document.getElementById(`q${qi}o${oi}`).classList.add('selected');
+            selectedAnswers[qi] = oi;
+        }
+
+        function submitQuiz() {
+            if (!currentQuiz) return;
+            
+            let correct = 0;
+            currentQuiz.questions.forEach((q, qi) => {
+                const selected = selectedAnswers[qi];
+                const correctIdx = q.correctAnswer ?? q.correct ?? 0;
+                
+                if (selected === correctIdx) {
+                    correct++;
+                    document.getElementById(`q${qi}o${selected}`)?.classList.add('correct');
+                } else {
+                    document.getElementById(`q${qi}o${selected}`)?.classList.add('wrong');
+                    document.getElementById(`q${qi}o${correctIdx}`)?.classList.add('correct');
+                }
+            });
+            
+            const total = currentQuiz.questions.length;
+            const percent = Math.round((correct / total) * 100);
+            
+            document.getElementById('quizResult').innerHTML = `
+                <div class="quiz-result">
+                    <div class="quiz-score">${correct}/${total}</div>
+                    <div style="font-size: 18px; margin-top: 10px;">${percent >= 70 ? '🎉 Xuất sắc!' : percent >= 50 ? '👍 Khá tốt!' : '💪 Cố gắng thêm!'}</div>
+                    <div style="margin-top: 8px; color: #666;">Đạt ${percent}% số câu đúng</div>
+                </div>
+            `;
+            document.getElementById('quizResult').style.display = 'block';
+            
+            showToast(`${percent >= 70 ? '🎉' : '📊'} Bạn đạt ${correct}/${total} điểm!`, percent >= 50 ? 'success' : 'error');
+        }
+
+        // ========================================
+        // CHAT
+        // ========================================
+        async function sendChat() {
+            const docId = document.getElementById('chatDocSelect').value;
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            
+            if (!docId) {
+                showToast('⚠️ Vui lòng chọn tài liệu!', 'error');
+                return;
+            }
+            if (!msg) return;
+
+            addChatMessage(msg, 'user');
+            input.value = '';
+            chatCount++;
+
+            try {
+                const result = await apiCall(`/documents/${docId}/chat`, 'POST', { question: msg });
+                addChatMessage(result.answer || result.response, 'bot');
+                chatCount++;
+                updateStats();
+            } catch (error) {
+                addChatMessage('❌ Xin lỗi, có lỗi xảy ra: ' + error.message, 'bot');
+            }
+        }
+
+        function addChatMessage(text, type) {
+            const el = document.getElementById('chatMessages');
+            el.innerHTML += `
+                <div class="chat-message ${type}">
+                    <div class="chat-avatar">${type === 'user' ? '👤' : '🤖'}</div>
+                    <div class="chat-bubble">${text}</div>
+                </div>
+            `;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        // ========================================
+        // EXPLAIN
+        // ========================================
+        async function explainConcept() {
+            const concept = document.getElementById('explainConcept').value;
+            const level = document.getElementById('explainLevel').value;
+            
+            if (!concept) {
+                showToast('⚠️ Vui lòng nhập khái niệm!', 'error');
+                return;
+            }
+
+            try {
+                document.getElementById('explainOutput').innerHTML = '<div class="spinner"></div> Đang tạo giải thích...';
+                showToast('💡 Đang xử lý...', 'info');
+                
+                const result = await apiCall('/explain', 'POST', { text: concept, level });
+                document.getElementById('explainOutput').innerHTML = result.explanation || result.result;
+                
+                showToast('✅ Hoàn thành!', 'success');
+            } catch (error) {
+                document.getElementById('explainOutput').innerHTML = '❌ Lỗi: ' + error.message;
+                showToast('❌ Lỗi: ' + error.message, 'error');
+            }
+        }
+
+        // ========================================
+        // STATS
+        // ========================================
+        function updateStats() {
+            document.getElementById('stat-docs').textContent = documents.length;
+            document.getElementById('stat-flashcards').textContent = currentFlashcards.length;
+            document.getElementById('stat-quizzes').textContent = currentQuiz?.questions?.length || 0;
+            document.getElementById('stat-chats').textContent = chatCount;
+        }
+
+        // ========================================
+        // FILE DRAG & DROP
+        // ========================================
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.background = 'var(--yellow)'; });
+        dropZone.addEventListener('dragleave', () => { dropZone.style.background = ''; });
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.style.background = '';
+            if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+        // Store selected file for upload
+        let selectedFile = null;
+        
+        function handleFile(file) {
+            const ext = file.name.toLowerCase().split('.').pop();
+            const supportedTypes = ['pdf', 'txt', 'docx', 'doc'];
+            
+            if (!supportedTypes.includes(ext)) {
+                showToast('❌ Chỉ hỗ trợ PDF, DOCX, TXT!', 'error');
+                return;
+            }
+            
+            selectedFile = file;
+            document.getElementById('docName').value = file.name.replace(/\.[^/.]+$/, '');
+            
+            // For TXT files, show content preview
+            if (ext === 'txt') {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('directContent').value = e.target.result;
+                    showToast('📄 File TXT đã được tải!', 'success');
+                };
+                reader.readAsText(file);
+            } else {
+                // For PDF/DOCX, just show file info
+                document.getElementById('directContent').value = `📎 File đã chọn: ${file.name}\n📦 Kích thước: ${(file.size / 1024).toFixed(2)} KB\n📂 Loại: ${ext.toUpperCase()}\n\n(Nội dung sẽ được trích xuất khi tải lên)`;
+                showToast(`📄 File ${ext.toUpperCase()} đã được chọn!`, 'success');
+            }
+        }
+
+        // ========================================
+        // INIT
+        // ========================================
+        loadDocuments();
+    </script>
+</body>
+</html>

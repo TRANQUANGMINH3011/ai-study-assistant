@@ -1,0 +1,19 @@
+{
+  "name": "ai-study-assistant",
+  "version": "1.0.0",
+  "description": "AI-powered study assistant using AWS Lambda and OpenAI GPT",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "deploy:dev": "serverless deploy --stage dev",
+    "deploy:prod": "serverless deploy --stage prod",
+    "remove": "serverless remove",
+    "logs": "serverless logs -f",
+    "info": "serverless info"
+  },
+  "devDependencies": {
+    "serverless": "^3.0.0",
+    "serverless-python-requirements": "^6.1.2"
+  },
+  "keywords": ["ai", "study", "assistant", "aws", "lambda", "openai", "gpt"],
+  "license": "MIT"
+}

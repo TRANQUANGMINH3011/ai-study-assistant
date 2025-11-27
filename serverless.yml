@@ -1,0 +1,484 @@
+service: ai-study-assistant
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: ap-southeast-1
+  stage: ${opt:stage, 'dev'}
+  timeout: 30
+  memorySize: 512
+  
+  environment:
+    GEMINI_API_KEY: ${env:GEMINI_API_KEY, ''}
+    BUCKET_NAME: !Ref FilesBucket
+    DOCUMENTS_TABLE: !Ref DocumentsTable
+    FLASHCARDS_TABLE: !Ref FlashcardsTable
+    QUIZZES_TABLE: !Ref QuizzesTable
+    SUMMARIES_TABLE: !Ref SummariesTable
+    CHAT_HISTORY_TABLE: !Ref ChatHistoryTable
+    USER_POOL_ID: !Ref UserPool
+    USER_POOL_CLIENT_ID: !Ref UserPoolClient
+    
+  iam:
+    role:
+      statements:
+        # S3 permissions
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
+            - s3:ListBucket
+          Resource:
+            - !GetAtt FilesBucket.Arn
+            - !Join ['', [!GetAtt FilesBucket.Arn, '/*']]
+        
+        # DynamoDB permissions
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:BatchWriteItem
+            - dynamodb:BatchGetItem
+          Resource:
+            - !GetAtt DocumentsTable.Arn
+            - !GetAtt FlashcardsTable.Arn
+            - !GetAtt QuizzesTable.Arn
+            - !GetAtt SummariesTable.Arn
+            - !GetAtt ChatHistoryTable.Arn
+            - !Join ['', [!GetAtt DocumentsTable.Arn, '/index/*']]
+            - !Join ['', [!GetAtt FlashcardsTable.Arn, '/index/*']]
+            - !Join ['', [!GetAtt QuizzesTable.Arn, '/index/*']]
+            - !Join ['', [!GetAtt SummariesTable.Arn, '/index/*']]
+            - !Join ['', [!GetAtt ChatHistoryTable.Arn, '/index/*']]
+
+# =====================================================
+# FUNCTIONS - 10 Use Cases
+# =====================================================
+functions:
+
+  # ===== USE CASE 1: Authentication =====
+  # Cognito handles registration/login automatically
+  
+  # ===== USE CASE 2: Upload Document =====
+  uploadDocument:
+    handler: handler.upload_document
+    timeout: 60
+    events:
+      - http:
+          path: documents/upload
+          method: post
+          cors: true
+
+  # Get presigned URL for direct upload to S3
+  getUploadUrl:
+    handler: handler.get_upload_url
+    events:
+      - http:
+          path: documents/upload-url
+          method: post
+          cors: true
+
+  # ===== USE CASE 3: Summarize Document =====
+  summarizeDocument:
+    handler: handler.summarize_document
+    timeout: 120
+    memorySize: 1024
+    events:
+      - http:
+          path: documents/{documentId}/summarize
+          method: post
+          cors: true
+
+  # Get summary
+  getSummary:
+    handler: handler.get_summary
+    events:
+      - http:
+          path: documents/{documentId}/summary
+          method: get
+          cors: true
+
+  # ===== USE CASE 4 & 5: Create and Review Flashcards =====
+  createFlashcards:
+    handler: handler.create_flashcards
+    timeout: 120
+    memorySize: 1024
+    events:
+      - http:
+          path: documents/{documentId}/flashcards
+          method: post
+          cors: true
+
+  getFlashcards:
+    handler: handler.get_flashcards
+    events:
+      - http:
+          path: documents/{documentId}/flashcards
+          method: get
+          cors: true
+
+  # Get all flashcard sets for user
+  listFlashcards:
+    handler: handler.list_flashcards
+    events:
+      - http:
+          path: flashcards
+          method: get
+          cors: true
+
+  # ===== USE CASE 6 & 7: Create and Take Quiz =====
+  createQuiz:
+    handler: handler.create_quiz
+    timeout: 120
+    memorySize: 1024
+    events:
+      - http:
+          path: documents/{documentId}/quiz
+          method: post
+          cors: true
+
+  getQuiz:
+    handler: handler.get_quiz
+    events:
+      - http:
+          path: quizzes/{quizId}
+          method: get
+          cors: true
+
+  submitQuiz:
+    handler: handler.submit_quiz
+    events:
+      - http:
+          path: quizzes/{quizId}/submit
+          method: post
+          cors: true
+
+  listQuizzes:
+    handler: handler.list_quizzes
+    events:
+      - http:
+          path: quizzes
+          method: get
+          cors: true
+
+  # ===== USE CASE 8: Chat with Document (RAG) =====
+  chatWithDocument:
+    handler: handler.chat_with_document
+    timeout: 60
+    memorySize: 1024
+    events:
+      - http:
+          path: documents/{documentId}/chat
+          method: post
+          cors: true
+
+  getChatHistory:
+    handler: handler.get_chat_history
+    events:
+      - http:
+          path: documents/{documentId}/chat/history
+          method: get
+          cors: true
+
+  # ===== USE CASE 9: Explain Like I'm 5 (ELI5) =====
+  explainConcept:
+    handler: handler.explain_concept
+    timeout: 60
+    events:
+      - http:
+          path: explain
+          method: post
+          cors: true
+
+  # ===== USE CASE 10: Document Management =====
+  listDocuments:
+    handler: handler.list_documents
+    events:
+      - http:
+          path: documents
+          method: get
+          cors: true
+
+  getDocument:
+    handler: handler.get_document
+    events:
+      - http:
+          path: documents/{documentId}
+          method: get
+          cors: true
+
+  deleteDocument:
+    handler: handler.delete_document
+    events:
+      - http:
+          path: documents/{documentId}
+          method: delete
+          cors: true
+
+  # ===== Public endpoint for testing (no auth) =====
+  healthCheck:
+    handler: handler.health_check
+    events:
+      - http:
+          path: health
+          method: get
+          cors: true
+
+# =====================================================
+# RESOURCES
+# =====================================================
+resources:
+  Resources:
+    
+    # ===== S3 Bucket =====
+    FilesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ai-study-assistant-files-${self:provider.stage}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders: ['*']
+              AllowedMethods: [GET, PUT, POST, DELETE, HEAD]
+              AllowedOrigins: ['*']
+              MaxAge: 3000
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+
+    # ===== DynamoDB Tables =====
+    
+    # Documents Table
+    DocumentsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ai-study-assistant-documents-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: documentId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: documentId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: userId-index
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    # Flashcards Table
+    FlashcardsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ai-study-assistant-flashcards-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: flashcardSetId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: documentId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: flashcardSetId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: userId-index
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: documentId-index
+            KeySchema:
+              - AttributeName: documentId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    # Quizzes Table
+    QuizzesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ai-study-assistant-quizzes-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: quizId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: documentId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: quizId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: userId-index
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: documentId-index
+            KeySchema:
+              - AttributeName: documentId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    # Summaries Table
+    SummariesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ai-study-assistant-summaries-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: summaryId
+            AttributeType: S
+          - AttributeName: documentId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: summaryId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: documentId-index
+            KeySchema:
+              - AttributeName: documentId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    # Chat History Table
+    ChatHistoryTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ai-study-assistant-chat-history-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: chatId
+            AttributeType: S
+          - AttributeName: documentId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: chatId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: documentId-index
+            KeySchema:
+              - AttributeName: documentId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: userId-index
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    # ===== Cognito User Pool =====
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: ai-study-assistant-users-${self:provider.stage}
+        AutoVerifiedAttributes:
+          - email
+        UsernameAttributes:
+          - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireLowercase: true
+            RequireNumbers: true
+            RequireSymbols: false
+            RequireUppercase: true
+        Schema:
+          - Name: email
+            Required: true
+            Mutable: true
+          - Name: name
+            Required: false
+            Mutable: true
+
+    UserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: ai-study-assistant-client-${self:provider.stage}
+        UserPoolId: !Ref UserPool
+        GenerateSecret: false
+        ExplicitAuthFlows:
+          - ALLOW_USER_PASSWORD_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+          - ALLOW_USER_SRP_AUTH
+        PreventUserExistenceErrors: ENABLED
+        SupportedIdentityProviders:
+          - COGNITO
+
+  # ===== Outputs =====
+  Outputs:
+    UserPoolId:
+      Value: !Ref UserPool
+      Description: Cognito User Pool ID
+    UserPoolClientId:
+      Value: !Ref UserPoolClient
+      Description: Cognito User Pool Client ID
+    FilesBucketName:
+      Value: !Ref FilesBucket
+      Description: S3 Bucket for files
+    ApiEndpoint:
+      Value: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}'
+      Description: API Gateway endpoint URL
+
+plugins:
+  - serverless-python-requirements
+
+package:
+  individually: false
+  patterns:
+    - '!node_modules/**'
+    - '!venv/**'
+    - '!.git/**'
+    - '!__pycache__/**'
+    - '!frontend/**'
+    - '!.env'
+    - '!.env.*'
+    - '!.serverless/**'
+    - '!tests/**'
+    - '!*.md'
+    - '!local/**'
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    slim: true
+    strip: false
+    slimPatterns:
+      - '**/*.pyc'
+      - '**/*.pyo'
+      - '**/__pycache__/**'
+      - '**/tests/**'
+      - '**/test/**'
+      - '**/*.dist-info/**'
+      - '**/*.egg-info/**'
+    noDeploy:
+      - boto3
+      - botocore
+      - s3transfer
+      - docutils
+      - jmespath
+      - python-dateutil
+      - six
+      - urllib3

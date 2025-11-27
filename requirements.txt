@@ -1,0 +1,11 @@
+# AI Study Assistant - Dependencies for Lambda
+# Note: boto3/botocore are pre-installed in Lambda runtime
+
+# HTTP requests (for calling OpenAI API directly)
+requests>=2.28.0
+
+# PDF Processing
+PyPDF2==3.0.1
+
+# DOCX Processing
+python-docx==1.1.0
