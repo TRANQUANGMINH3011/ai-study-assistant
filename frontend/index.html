@@ -751,17 +751,224 @@
         .empty-state-text {
             font-size: 16px;
         }
+
+        /* ========================================
+           AUTH MODAL
+           ======================================== */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .auth-modal.hidden {
+            display: none;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: var(--white);
+            border: var(--border-thick);
+            box-shadow: var(--shadow-lg);
+            padding: 40px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header .logo-box {
+            display: inline-block;
+            background: var(--black);
+            color: var(--yellow);
+            padding: 8px 16px;
+            font-family: 'Space Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .auth-header h2 {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form h3 {
+            font-size: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .auth-form small {
+            display: block;
+            margin-top: 5px;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .auth-switch a {
+            color: var(--purple);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--white);
+            border: var(--border);
+            padding: 8px 15px;
+        }
+
+        .user-info span {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .btn-small {
+            padding: 5px 10px !important;
+            font-size: 12px !important;
+        }
+
+        .btn-red {
+            background: var(--red);
+        }
+
+        .btn-red:hover {
+            background: #ff5252;
+        }
     </style>
 </head>
 <body>
+    <!-- AUTH MODAL -->
+    <div id="authModal" class="auth-modal">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <span class="logo-box">AI</span>
+                    <h2>Study Assistant</h2>
+                </div>
+                
+                <!-- Login Form -->
+                <div id="loginForm" class="auth-form active">
+                    <h3>🔐 Đăng nhập</h3>
+                    <div class="form-group">
+                        <label>📧 Email</label>
+                        <input type="email" id="loginEmail" placeholder="email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>🔑 Mật khẩu</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-black btn-block" onclick="login()">
+                        🚀 ĐĂNG NHẬP
+                    </button>
+                    <p class="auth-switch">
+                        Chưa có tài khoản? <a href="#" onclick="showRegister()">Đăng ký ngay</a>
+                    </p>
+                </div>
+                
+                <!-- Register Form -->
+                <div id="registerForm" class="auth-form">
+                    <h3>✨ Đăng ký</h3>
+                    <div class="form-group">
+                        <label>👤 Họ tên</label>
+                        <input type="text" id="registerName" placeholder="Nguyễn Văn A">
+                    </div>
+                    <div class="form-group">
+                        <label>📧 Email</label>
+                        <input type="email" id="registerEmail" placeholder="email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>🔑 Mật khẩu</label>
+                        <input type="password" id="registerPassword" placeholder="Tối thiểu 8 ký tự">
+                        <small>Yêu cầu: 8+ ký tự, có chữ hoa, chữ thường, số</small>
+                    </div>
+                    <div class="form-group">
+                        <label>🔑 Xác nhận mật khẩu</label>
+                        <input type="password" id="registerConfirmPassword" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-green btn-block" onclick="register()">
+                        ✅ ĐĂNG KÝ
+                    </button>
+                    <p class="auth-switch">
+                        Đã có tài khoản? <a href="#" onclick="showLogin()">Đăng nhập</a>
+                    </p>
+                </div>
+                
+                <!-- Verify Form -->
+                <div id="verifyForm" class="auth-form">
+                    <h3>📬 Xác nhận Email</h3>
+                    <p style="margin-bottom: 20px; color: #666;">
+                        Mã xác nhận đã được gửi đến email của bạn
+                    </p>
+                    <div class="form-group">
+                        <label>🔢 Mã xác nhận</label>
+                        <input type="text" id="verifyCode" placeholder="123456" maxlength="6">
+                    </div>
+                    <button class="btn btn-purple btn-block" onclick="verifyEmail()">
+                        ✅ XÁC NHẬN
+                    </button>
+                    <p class="auth-switch">
+                        <a href="#" onclick="resendCode()">Gửi lại mã</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- HEADER -->
     <header class="header">
         <div class="logo">
             <span class="logo-box">AI</span>
             Study Assistant
         </div>
-        <div class="header-badge">
-            ⚡ Powered by Gemini
+        <div class="header-right">
+            <div class="header-badge">
+                ⚡ Powered by Gemini
+            </div>
+            <div class="user-info" id="userInfo" style="display: none;">
+                <span id="userName">👤 User</span>
+                <button class="btn btn-small btn-red" onclick="logout()">🚪 Đăng xuất</button>
+            </div>
         </div>
     </header>
 
@@ -1048,6 +1255,319 @@
         // ========================================
         // CONFIG
         // ========================================
+        // COGNITO CONFIGURATION
+        // ========================================
+        const COGNITO_CONFIG = {
+            UserPoolId: 'ap-southeast-1_Vw8zDmUiV',
+            ClientId: '7g0840a5f1l3clqh9kjgvdc6jn',
+            Region: 'ap-southeast-1'
+        };
+
+        // Auth state
+        let currentUser = null;
+        let authToken = null;
+        let pendingEmail = null;
+
+        // ========================================
+        // AUTH FUNCTIONS
+        // ========================================
+        function showLogin() {
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('registerForm').classList.remove('active');
+            document.getElementById('verifyForm').classList.remove('active');
+        }
+
+        function showRegister() {
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('registerForm').classList.add('active');
+            document.getElementById('verifyForm').classList.remove('active');
+        }
+
+        function showVerify() {
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('registerForm').classList.remove('active');
+            document.getElementById('verifyForm').classList.add('active');
+        }
+
+        async function register() {
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+            if (!name || !email || !password) {
+                showToast('⚠️ Vui lòng điền đầy đủ thông tin!', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showToast('⚠️ Mật khẩu không khớp!', 'error');
+                return;
+            }
+
+            if (password.length < 8) {
+                showToast('⚠️ Mật khẩu phải có ít nhất 8 ký tự!', 'error');
+                return;
+            }
+
+            // Check password requirements
+            const hasUpper = /[A-Z]/.test(password);
+            const hasLower = /[a-z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+
+            if (!hasUpper || !hasLower || !hasNumber) {
+                showToast('⚠️ Mật khẩu cần có chữ hoa, chữ thường và số!', 'error');
+                return;
+            }
+
+            try {
+                showToast('⏳ Đang đăng ký...', 'info');
+                
+                // Call Cognito SignUp API
+                const response = await fetch(`https://cognito-idp.${COGNITO_CONFIG.Region}.amazonaws.com/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-amz-json-1.1',
+                        'X-Amz-Target': 'AWSCognitoIdentityProviderService.SignUp'
+                    },
+                    body: JSON.stringify({
+                        ClientId: COGNITO_CONFIG.ClientId,
+                        Username: email,
+                        Password: password,
+                        UserAttributes: [
+                            { Name: 'email', Value: email },
+                            { Name: 'name', Value: name }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.__type) {
+                    // Error
+                    if (data.__type.includes('UsernameExistsException')) {
+                        showToast('❌ Email đã được đăng ký!', 'error');
+                    } else if (data.__type.includes('InvalidPasswordException')) {
+                        showToast('❌ Mật khẩu không đủ mạnh!', 'error');
+                    } else {
+                        showToast('❌ ' + (data.message || 'Lỗi đăng ký'), 'error');
+                    }
+                    return;
+                }
+
+                pendingEmail = email;
+                showToast('✅ Đăng ký thành công! Kiểm tra email để lấy mã xác nhận.', 'success');
+                showVerify();
+
+            } catch (error) {
+                console.error('Register error:', error);
+                showToast('❌ Lỗi đăng ký: ' + error.message, 'error');
+            }
+        }
+
+        async function verifyEmail() {
+            const code = document.getElementById('verifyCode').value.trim();
+
+            if (!code || !pendingEmail) {
+                showToast('⚠️ Vui lòng nhập mã xác nhận!', 'error');
+                return;
+            }
+
+            try {
+                showToast('⏳ Đang xác nhận...', 'info');
+
+                const response = await fetch(`https://cognito-idp.${COGNITO_CONFIG.Region}.amazonaws.com/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-amz-json-1.1',
+                        'X-Amz-Target': 'AWSCognitoIdentityProviderService.ConfirmSignUp'
+                    },
+                    body: JSON.stringify({
+                        ClientId: COGNITO_CONFIG.ClientId,
+                        Username: pendingEmail,
+                        ConfirmationCode: code
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.__type) {
+                    if (data.__type.includes('CodeMismatchException')) {
+                        showToast('❌ Mã xác nhận không đúng!', 'error');
+                    } else if (data.__type.includes('ExpiredCodeException')) {
+                        showToast('❌ Mã xác nhận đã hết hạn!', 'error');
+                    } else {
+                        showToast('❌ ' + (data.message || 'Lỗi xác nhận'), 'error');
+                    }
+                    return;
+                }
+
+                showToast('✅ Xác nhận thành công! Vui lòng đăng nhập.', 'success');
+                showLogin();
+                document.getElementById('loginEmail').value = pendingEmail;
+                pendingEmail = null;
+
+            } catch (error) {
+                console.error('Verify error:', error);
+                showToast('❌ Lỗi xác nhận: ' + error.message, 'error');
+            }
+        }
+
+        async function resendCode() {
+            if (!pendingEmail) {
+                showToast('⚠️ Không có email để gửi lại mã!', 'error');
+                return;
+            }
+
+            try {
+                showToast('⏳ Đang gửi lại mã...', 'info');
+
+                const response = await fetch(`https://cognito-idp.${COGNITO_CONFIG.Region}.amazonaws.com/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-amz-json-1.1',
+                        'X-Amz-Target': 'AWSCognitoIdentityProviderService.ResendConfirmationCode'
+                    },
+                    body: JSON.stringify({
+                        ClientId: COGNITO_CONFIG.ClientId,
+                        Username: pendingEmail
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.__type) {
+                    showToast('❌ ' + (data.message || 'Lỗi gửi mã'), 'error');
+                    return;
+                }
+
+                showToast('✅ Đã gửi lại mã xác nhận!', 'success');
+
+            } catch (error) {
+                showToast('❌ Lỗi: ' + error.message, 'error');
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showToast('⚠️ Vui lòng nhập email và mật khẩu!', 'error');
+                return;
+            }
+
+            try {
+                showToast('⏳ Đang đăng nhập...', 'info');
+
+                const response = await fetch(`https://cognito-idp.${COGNITO_CONFIG.Region}.amazonaws.com/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-amz-json-1.1',
+                        'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth'
+                    },
+                    body: JSON.stringify({
+                        AuthFlow: 'USER_PASSWORD_AUTH',
+                        ClientId: COGNITO_CONFIG.ClientId,
+                        AuthParameters: {
+                            USERNAME: email,
+                            PASSWORD: password
+                        }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.__type) {
+                    if (data.__type.includes('NotAuthorizedException')) {
+                        showToast('❌ Email hoặc mật khẩu không đúng!', 'error');
+                    } else if (data.__type.includes('UserNotConfirmedException')) {
+                        pendingEmail = email;
+                        showToast('⚠️ Tài khoản chưa xác nhận. Vui lòng kiểm tra email.', 'error');
+                        showVerify();
+                    } else if (data.__type.includes('UserNotFoundException')) {
+                        showToast('❌ Tài khoản không tồn tại!', 'error');
+                    } else {
+                        showToast('❌ ' + (data.message || 'Lỗi đăng nhập'), 'error');
+                    }
+                    return;
+                }
+
+                // Success - save tokens
+                const tokens = data.AuthenticationResult;
+                authToken = tokens.IdToken;
+                
+                // Decode JWT to get user info
+                const payload = JSON.parse(atob(authToken.split('.')[1]));
+                currentUser = {
+                    email: payload.email,
+                    name: payload.name || payload.email.split('@')[0],
+                    sub: payload.sub
+                };
+
+                // Save to localStorage
+                localStorage.setItem('authToken', authToken);
+                localStorage.setItem('refreshToken', tokens.RefreshToken);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                // Update UI
+                document.getElementById('authModal').classList.add('hidden');
+                document.getElementById('userInfo').style.display = 'flex';
+                document.getElementById('userName').textContent = '👤 ' + currentUser.name;
+
+                showToast('✅ Đăng nhập thành công!', 'success');
+                loadDocuments();
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast('❌ Lỗi đăng nhập: ' + error.message, 'error');
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('currentUser');
+
+            document.getElementById('authModal').classList.remove('hidden');
+            document.getElementById('userInfo').style.display = 'none';
+            showLogin();
+
+            showToast('👋 Đã đăng xuất!', 'success');
+        }
+
+        function checkAuth() {
+            const savedToken = localStorage.getItem('authToken');
+            const savedUser = localStorage.getItem('currentUser');
+
+            if (savedToken && savedUser) {
+                try {
+                    // Check if token is expired
+                    const payload = JSON.parse(atob(savedToken.split('.')[1]));
+                    const exp = payload.exp * 1000;
+
+                    if (Date.now() < exp) {
+                        authToken = savedToken;
+                        currentUser = JSON.parse(savedUser);
+
+                        document.getElementById('authModal').classList.add('hidden');
+                        document.getElementById('userInfo').style.display = 'flex';
+                        document.getElementById('userName').textContent = '👤 ' + currentUser.name;
+                        return true;
+                    }
+                } catch (e) {
+                    console.error('Token check error:', e);
+                }
+            }
+
+            // Not authenticated - show login modal
+            document.getElementById('authModal').classList.remove('hidden');
+            return false;
+        }
+
+        // ========================================
         const API_BASE = 'https://0q3mju5aqe.execute-api.ap-southeast-1.amazonaws.com/dev';
         
         let documents = [];
@@ -1089,8 +1609,16 @@
         async function apiCall(endpoint, method = 'GET', body = null) {
             const options = {
                 method,
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 
+                    'Content-Type': 'application/json'
+                }
             };
+            
+            // Add auth token if available
+            if (authToken) {
+                options.headers['Authorization'] = `Bearer ${authToken}`;
+            }
+            
             if (body) options.body = JSON.stringify(body);
             
             const response = await fetch(`${API_BASE}${endpoint}`, options);
@@ -1517,7 +2045,10 @@
         // ========================================
         // INIT
         // ========================================
-        loadDocuments();
+        // Check authentication on page load
+        if (checkAuth()) {
+            loadDocuments();
+        }
     </script>
 </body>
 </html>
